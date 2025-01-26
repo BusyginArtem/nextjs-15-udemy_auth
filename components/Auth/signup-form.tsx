@@ -1,23 +1,24 @@
 "use client";
 
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { startTransition, useActionState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 //
 import { FormState, signup } from "@/actions/auth";
-import { authFormSchema } from "@/lib/validation/form";
-import { redirect } from "next/navigation";
+import { type SignUpFormSchema, signUpFormSchema } from "@/lib/validation/form";
 import { cn } from "@/lib/utils";
 
-export default function AuthForm() {
-  const [formState, formAction] = useActionState<FormState, FormData>(signup, {
+export default function SignUpForm() {
+  const [formState, formAction, isPending] = useActionState<FormState, FormData>(signup, {
     status: "idle",
+    errors: undefined,
+    fields: undefined,
   });
 
-  const form = useForm<z.output<typeof authFormSchema>>({
-    resolver: zodResolver(authFormSchema),
+  const form = useForm<SignUpFormSchema>({
+    resolver: zodResolver(signUpFormSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -127,14 +128,20 @@ export default function AuthForm() {
 
       <p>
         <button
+          disabled={isPending}
           type='submit'
-          className='w-full p-2 rounded-md bg-[#4b34a9] text-[#d0cfd6] hover:bg-[#432aa3] focus:outline-none mt-8'
+          className={cn(
+            "w-full p-2 rounded-md bg-[#4b34a9] text-[#d0cfd6] hover:bg-[#432aa3] focus:outline-none mt-4",
+            {
+              "disabled:bg-gray-600 cursor-wait": isPending,
+            }
+          )}
         >
-          Create Account
+          Create an account
         </button>
       </p>
       <p>
-        <Link href='/' className='block my-4 text-center text-[#564f6e] hover:text-[#4b34a9] no-underline'>
+        <Link href='/?mode=login' className='block my-4 text-center text-[#564f6e] hover:text-[#4b34a9] no-underline'>
           Login with existing account.
         </Link>
       </p>

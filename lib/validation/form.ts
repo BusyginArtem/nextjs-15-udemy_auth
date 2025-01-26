@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const passwordValidation = new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/);
 
-export const authFormSchema = z
+export const signUpFormSchema = z
   .object({
     email: z.string().trim().min(1, "Email is required").email("Must be a valid email"),
     password: z.string().trim().min(1, "Password is required").regex(passwordValidation, {
@@ -20,4 +20,10 @@ export const authFormSchema = z
     }
   );
 
-export type AuthFormSchema = z.infer<typeof authFormSchema>;
+export const loginFormSchema = z.object({
+  email: z.string().trim().min(1, "Email is required").email("Must be a valid email"),
+  password: z.string().trim().min(1, "Password is required"),
+});
+
+export type SignUpFormSchema = z.infer<typeof signUpFormSchema>;
+export type LoginFormSchema = z.infer<typeof loginFormSchema>;
