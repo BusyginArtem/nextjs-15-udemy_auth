@@ -1,8 +1,9 @@
 "use client";
 
+import { startTransition, useActionState, useEffect, useRef } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { startTransition, useActionState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 //
@@ -16,7 +17,7 @@ export default function LoginForm() {
     errors: undefined,
     fields: undefined,
   });
-  console.log("%c isPending", "color: green; font-weight: bold;", isPending);
+
   const form = useForm<LoginFormSchema>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -35,11 +36,11 @@ export default function LoginForm() {
   }, [formState.status]);
 
   useEffect(() => {
-    const emailError = formState?.errors?.find((error) => error.path === "email");
-
-    if (emailError) {
-      form.setError("email", emailError);
-    }
+    formState?.errors?.forEach((error) => {
+      if (error.path === "email" || error.path === "password") {
+        form.setError(error.path, error);
+      }
+    });
   }, [formState?.errors]);
 
   return (
@@ -57,8 +58,11 @@ export default function LoginForm() {
       className='w-[90%] max-w-[40rem] rounded-lg px-10 py-6 my-20 mx-auto bg-[#b8b4c3] shadow-md flex flex-col'
     >
       <div>
-        <img
+        <Image
+          priority
           src='/images/auth-icon.jpg'
+          width={100}
+          height={100}
           alt='A lock icon'
           className='block w-24 h-24 rounded-full mx-auto mt-4 drop-shadow-md'
         />
@@ -98,7 +102,7 @@ export default function LoginForm() {
         )}
       </p>
 
-      {formState?.errors && (
+      {/* {formState?.errors && (
         <ul className='flex flex-col gap-1'>
           {formState.errors.map((error, idx) => (
             <li key={idx} className='flex flex-row gap-1 text-xs text-red-700'>
@@ -106,7 +110,7 @@ export default function LoginForm() {
             </li>
           ))}
         </ul>
-      )}
+      )} */}
 
       <p>
         <button

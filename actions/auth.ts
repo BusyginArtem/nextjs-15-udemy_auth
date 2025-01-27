@@ -1,10 +1,11 @@
 "use server";
 
-import { createAuthSession } from "@/lib/auth";
+import { createAuthSession, destroySession } from "@/lib/auth";
 import { hashUserPassword, verifyPassword } from "@/lib/hash";
 import { createUser, getUserByEmail } from "@/lib/users";
 import { transformZodErrors } from "@/lib/utils";
 import { loginFormSchema, signUpFormSchema } from "@/lib/validation/form";
+import { redirect } from "next/navigation";
 
 // type Status = "succeed" | "failed" | "idle";
 
@@ -19,11 +20,19 @@ type LoginFields = {
   password: string;
 };
 
-// export type FormState = {
-//   status: Status;
-//   fields?: LoginFields | SignUpFields;
-//   errors?: { path: string; message: string }[];
-// };
+export type LogoutFormState =
+  | {
+      status: "succeed";
+      error: undefined;
+    }
+  | {
+      status: "failed";
+      error: string | undefined;
+    }
+  | {
+      status: "idle";
+      error: undefined;
+    };
 
 export type FormState =
   | {
@@ -158,4 +167,27 @@ export async function login(prevState: FormState, data: FormData): Promise<FormS
     errors: undefined,
     fields: undefined,
   };
+}
+
+export async function logout(): Promise<LogoutFormState> {
+  try {
+    await destroySession();
+
+    return {
+      status: "succeed",
+      error: undefined,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      return {
+        status: "failed",
+        error: error.message,
+      };
+    }
+
+    return {
+      status: "failed",
+      error: undefined,
+    };
+  }
 }

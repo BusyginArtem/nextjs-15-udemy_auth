@@ -1,8 +1,9 @@
 "use client";
 
+import { startTransition, useActionState, useEffect, useRef } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { startTransition, useActionState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 //
@@ -36,11 +37,11 @@ export default function SignUpForm() {
   }, [formState.status]);
 
   useEffect(() => {
-    const emailError = formState?.errors?.find((error) => error.path === "email");
-
-    if (emailError) {
-      form.setError("email", emailError);
-    }
+    formState?.errors?.forEach((error) => {
+      if (error.path === "email" || error.path === "password" || error.path === "confirmPassword") {
+        form.setError(error.path, error);
+      }
+    });
   }, [formState?.errors]);
 
   return (
@@ -58,7 +59,10 @@ export default function SignUpForm() {
       className='w-[90%] max-w-[40rem] rounded-lg px-10 py-6 my-20 mx-auto bg-[#b8b4c3] shadow-md flex flex-col'
     >
       <div>
-        <img
+        <Image
+          priority
+          width={100}
+          height={100}
           src='/images/auth-icon.jpg'
           alt='A lock icon'
           className='block w-24 h-24 rounded-full mx-auto mt-4 drop-shadow-md'
@@ -116,7 +120,7 @@ export default function SignUpForm() {
         )}
       </p>
 
-      {formState?.errors && (
+      {/* {formState?.errors && (
         <ul className='flex flex-col gap-1'>
           {formState.errors.map((error, idx) => (
             <li key={idx} className='flex flex-row gap-1 text-xs text-red-700'>
@@ -124,7 +128,7 @@ export default function SignUpForm() {
             </li>
           ))}
         </ul>
-      )}
+      )} */}
 
       <p>
         <button

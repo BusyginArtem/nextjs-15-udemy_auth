@@ -59,3 +59,15 @@ export async function verifyAuth() {
 
   return result;
 }
+
+export async function destroySession() {
+  const { session } = await verifyAuth();
+
+  if (!session) {
+    throw new Error("Something went wrong! try again later.");
+  }
+
+  await lucia.invalidateSession(session.id);
+  const sessionCookie = lucia.createBlankSessionCookie();
+  (await cookies()).set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+}
